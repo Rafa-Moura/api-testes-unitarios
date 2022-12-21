@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserEntity findById(Long id) {
-        log.info("SERVICE: Início do método findById - Id: {}", id);
+        log.info(this.getClass() + ": Início do método findById - Id: {}", id);
         Optional<UserEntity> userEntity = userRepository.findById(id);
         return userEntity.orElse(null);
     }
