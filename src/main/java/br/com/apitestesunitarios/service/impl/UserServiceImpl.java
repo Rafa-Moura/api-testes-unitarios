@@ -3,6 +3,7 @@ package br.com.apitestesunitarios.service.impl;
 import br.com.apitestesunitarios.infrastructure.model.UserEntity;
 import br.com.apitestesunitarios.infrastructure.repository.UserRepository;
 import br.com.apitestesunitarios.service.UserService;
+import br.com.apitestesunitarios.service.exception.ObjectNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,6 @@ public class UserServiceImpl implements UserService {
     public UserEntity findById(Long id) {
         log.info(this.getClass() + ": Início do método findById - Id: {}", id);
         Optional<UserEntity> userEntity = userRepository.findById(id);
-        return userEntity.orElse(null);
+        return userEntity.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado"));
     }
 }
