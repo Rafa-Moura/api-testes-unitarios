@@ -6,11 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,17 +34,29 @@ public class UserController {
     @GetMapping(value = API_VERSION + "/{id}")
     public ResponseEntity<UserDto> findUserById(@PathVariable Long id) {
         log.info("Início da camada de controller. Método findUserById - Id: {}", id);
+
         return ResponseEntity.ok().body(modelMapper.map(userServiceImpl.findById(id), UserDto.class));
     }
 
     @GetMapping(value = API_VERSION)
     public ResponseEntity<List<UserDto>> findAll() {
         log.info("Início da camada de controller. Método findALl");
+
         return ResponseEntity
                 .ok()
                 .body(userServiceImpl.findAll()
-                .stream()
-                .map(userDto -> modelMapper.map(userDto, UserDto.class))
-                .collect(Collectors.toList()));
+                        .stream()
+                        .map(userDto -> modelMapper.map(userDto, UserDto.class))
+                        .collect(Collectors.toList()));
+    }
+
+    @PostMapping(value = API_VERSION, produces = "application/json")
+    public ResponseEntity<UserDto> create(@RequestBody @Valid UserDto userDto) {
+        log.info("Início da camada de controller. Método create");
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(userServiceImpl.create(userDto).getId()).toUri();
+
+        return ResponseEntity.created(uri).build();
     }
 }

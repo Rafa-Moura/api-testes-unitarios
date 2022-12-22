@@ -1,10 +1,12 @@
 package br.com.apitestesunitarios.service.impl;
 
+import br.com.apitestesunitarios.controller.dto.UserDto;
 import br.com.apitestesunitarios.infrastructure.model.UserEntity;
 import br.com.apitestesunitarios.infrastructure.repository.UserRepository;
 import br.com.apitestesunitarios.service.UserService;
 import br.com.apitestesunitarios.service.exception.ObjectNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +19,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    private final ModelMapper modelMapper;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper) {
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -33,5 +38,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserEntity> findAll() {
         return userRepository.findAll();
+    }
+
+    public UserEntity create(UserDto userDto) {
+        return userRepository.save(modelMapper.map(userDto, UserEntity.class));
     }
 }
