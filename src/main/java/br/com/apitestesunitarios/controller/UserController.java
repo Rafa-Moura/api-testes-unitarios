@@ -1,8 +1,9 @@
 package br.com.apitestesunitarios.controller;
 
-import br.com.apitestesunitarios.infrastructure.model.UserEntity;
+import br.com.apitestesunitarios.controller.dto.UserDto;
 import br.com.apitestesunitarios.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,17 +19,18 @@ public class UserController {
 
     private final UserServiceImpl userServiceImpl;
 
+    private final ModelMapper modelMapper;
+
     @Autowired
-    public UserController(UserServiceImpl userServiceImpl) {
+    public UserController(UserServiceImpl userServiceImpl, ModelMapper modelMapper) {
         this.userServiceImpl = userServiceImpl;
+        this.modelMapper = modelMapper;
     }
 
 
     @GetMapping(value = API_VERSION + "/{id}")
-    public ResponseEntity<UserEntity> findUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDto> findUserById(@PathVariable Long id) {
         log.info("Início da camada de controller. Método findUserById - Id: {}", id);
-        UserEntity userEntity = userServiceImpl.findById(id);
-        log.info("Fim do método findByUserId - id: {}", 1);
-        return ResponseEntity.ok().body(userEntity);
+        return ResponseEntity.ok().body(modelMapper.map(userServiceImpl.findById(id), UserDto.class));
     }
 }
