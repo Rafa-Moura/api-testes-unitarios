@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping(value = "/api")
 @Slf4j
@@ -32,5 +35,16 @@ public class UserController {
     public ResponseEntity<UserDto> findUserById(@PathVariable Long id) {
         log.info("Início da camada de controller. Método findUserById - Id: {}", id);
         return ResponseEntity.ok().body(modelMapper.map(userServiceImpl.findById(id), UserDto.class));
+    }
+
+    @GetMapping(value = API_VERSION)
+    public ResponseEntity<List<UserDto>> findAll() {
+        log.info("Início da camada de controller. Método findALl");
+        return ResponseEntity
+                .ok()
+                .body(userServiceImpl.findAll()
+                .stream()
+                .map(userDto -> modelMapper.map(userDto, UserDto.class))
+                .collect(Collectors.toList()));
     }
 }
