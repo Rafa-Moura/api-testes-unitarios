@@ -26,6 +26,6 @@ public class UserServiceImpl implements UserService {
         log.info(this.getClass() + ": Início do método findById - Id: {}", id);
         Optional<UserEntity> userEntity = userRepository.findById(id);
         return userEntity.orElseThrow(
-                () -> new ObjectNotFoundException(this.getClass().toString(), "Objeto não encontrado"));
+                () -> new ObjectNotFoundException(this.getClass().toString(), "Usuário não encontrado"));
     }
 }

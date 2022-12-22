@@ -18,7 +18,7 @@ public class ControllerExceptionHandler {
         StandardError standardError = StandardError.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
-                .error("Objeto não encontrado")
+                .error(exception.getMessage())
                 .path(request.getRequestURI())
                 .build();
 
