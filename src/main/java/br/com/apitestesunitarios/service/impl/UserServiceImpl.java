@@ -4,6 +4,7 @@ import br.com.apitestesunitarios.controller.dto.UserDto;
 import br.com.apitestesunitarios.infrastructure.model.UserEntity;
 import br.com.apitestesunitarios.infrastructure.repository.UserRepository;
 import br.com.apitestesunitarios.service.UserService;
+import br.com.apitestesunitarios.service.exception.DataIntegrateViolationException;
 import br.com.apitestesunitarios.service.exception.ObjectNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -41,6 +42,16 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserEntity create(UserDto userDto) {
+        findByEmail(userDto);
         return userRepository.save(modelMapper.map(userDto, UserEntity.class));
     }
+
+    private void findByEmail(UserDto userDto) {
+        Optional<UserEntity> userEntity = userRepository.findByEmail(userDto.getEmail());
+        if (userEntity.isPresent()) {
+            throw new DataIntegrateViolationException(this.getClass().toString(), "Email já cadastrado");
+        }
+    }
+
+
 }
