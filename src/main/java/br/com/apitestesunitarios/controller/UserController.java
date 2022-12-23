@@ -1,6 +1,7 @@
 package br.com.apitestesunitarios.controller;
 
 import br.com.apitestesunitarios.controller.dto.UserDto;
+import br.com.apitestesunitarios.infrastructure.model.UserEntity;
 import br.com.apitestesunitarios.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -58,5 +59,12 @@ public class UserController {
                 .buildAndExpand(userServiceImpl.create(userDto).getId()).toUri();
 
         return ResponseEntity.created(uri).build();
+    }
+
+    @PutMapping(value = API_VERSION + "/{id}", produces = "application/json")
+    public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody UserDto userDto) {
+        userDto.setId(id);
+        log.info("Início da camada de controller. Método Update {}", userDto.getId());
+        return ResponseEntity.ok().body(modelMapper.map(userServiceImpl.update(userDto), UserDto.class));
     }
 }
