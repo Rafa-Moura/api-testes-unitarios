@@ -1,7 +1,6 @@
 package br.com.apitestesunitarios.controller;
 
 import br.com.apitestesunitarios.controller.dto.UserDto;
-import br.com.apitestesunitarios.infrastructure.model.UserEntity;
 import br.com.apitestesunitarios.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -66,5 +65,12 @@ public class UserController {
         userDto.setId(id);
         log.info("Início da camada de controller. Método Update {}", userDto.getId());
         return ResponseEntity.ok().body(modelMapper.map(userServiceImpl.update(userDto), UserDto.class));
+    }
+
+    @DeleteMapping(value = API_VERSION + "/{id}")
+    public ResponseEntity<UserDto> delete(@PathVariable Long id) {
+        log.info("Início da camada de controller. Método delete {}", id);
+        userServiceImpl.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
