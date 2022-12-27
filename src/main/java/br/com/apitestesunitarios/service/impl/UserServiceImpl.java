@@ -32,8 +32,7 @@ public class UserServiceImpl implements UserService {
     public UserEntity findById(Long id) {
         log.info(this.getClass() + ": Início do método findById - Id: {}", id);
         Optional<UserEntity> userEntity = userRepository.findById(id);
-        return userEntity.orElseThrow(
-                () -> new ObjectNotFoundException("Usuário não encontrado"));
+        return userEntity.orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado"));
     }
 
     @Override
