@@ -19,7 +19,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class UserServiceImplTest {
@@ -161,8 +161,25 @@ class UserServiceImplTest {
     }
 
     @Test
-    void deleteById() {
+    void mustDeleteAnUserWhenDeleteById() {
+        when(userRepository.findById(anyLong())).thenReturn(optionalUserEntity);
+        doNothing().when(userRepository).deleteById(anyLong());
+        userServiceImpl.deleteById(ID);
+        verify(userRepository, times(1)).deleteById(anyLong());
     }
+
+    @Test
+    void mustReturnAnObjectNotFoundExceptionWhenDeleteById() {
+        when(userRepository.findById(anyLong())).thenThrow(new ObjectNotFoundException(USUARIO_NAO_ENCONTRADO));
+
+        try {
+            userServiceImpl.deleteById(ID);
+        } catch (Exception exception) {
+            assertEquals(ObjectNotFoundException.class, exception.getClass());
+            assertEquals(USUARIO_NAO_ENCONTRADO, exception.getMessage());
+        }
+    }
+
 
     private void startUsers() {
         userEntity = new UserEntity(ID, NAME, EMAIL, PASSWORD);
