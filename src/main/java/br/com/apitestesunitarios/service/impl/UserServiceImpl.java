@@ -30,27 +30,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserEntity findById(Long id) {
-        log.info(this.getClass() + ": Início do método findById - Id: {}", id);
         Optional<UserEntity> userEntity = userRepository.findById(id);
         return userEntity.orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado"));
     }
 
     @Override
     public List<UserEntity> findAll() {
-        log.info(this.getClass() + ": método findAll");
         return userRepository.findAll();
     }
 
     @Override
     public UserEntity create(UserDto userDto) {
-        log.info(this.getClass() + ": método create: {}", userDto.getEmail());
         findByEmail(userDto);
         return userRepository.save(modelMapper.map(userDto, UserEntity.class));
     }
 
     @Override
     public UserEntity update(UserDto userDto) {
-        log.info(this.getClass() + ": método update: {}", userDto.getEmail());
         findById(userDto.getId());
         findByEmail(userDto);
         return userRepository.save(modelMapper.map(userDto, UserEntity.class));
@@ -58,13 +54,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(Long id) {
-        log.info(this.getClass() + ": Início do método delete - Id: {}", id);
         findById(id);
         userRepository.deleteById(id);
     }
 
     private void findByEmail(UserDto userDto) {
-        log.info(this.getClass() + ": método findByEmail: {}", userDto.getEmail());
         Optional<UserEntity> userEntity = userRepository.findByEmail(userDto.getEmail());
         if (userEntity.isPresent() && !userEntity.get().getId().equals(userDto.getId())) {
             throw new DataIntegrateViolationException("Email já cadastrado");

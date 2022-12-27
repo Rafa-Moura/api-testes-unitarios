@@ -4,7 +4,6 @@ import br.com.apitestesunitarios.controller.dto.UserDto;
 import br.com.apitestesunitarios.infrastructure.model.UserEntity;
 import br.com.apitestesunitarios.infrastructure.repository.UserRepository;
 import br.com.apitestesunitarios.service.exception.ObjectNotFoundException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,10 +12,11 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -56,13 +56,33 @@ class UserServiceImplTest {
 
         UserEntity response = userServiceImpl.findById(id);
 
-        Assertions.assertNotNull(response);
+        assertNotNull(response);
         assertEquals(UserEntity.class, response.getClass());
         assertEquals(id, response.getId());
     }
 
     @Test
-    void findAll() {
+    void mustReturnAnObjectNotFoundException() {
+        when(userRepository.findById(anyLong())).thenThrow(new ObjectNotFoundException("Usuário não encontrado"));
+
+        try {
+            userServiceImpl.findById(id);
+        } catch (Exception exception) {
+            assertEquals(ObjectNotFoundException.class, exception.getClass());
+            assertEquals("Usuário não encontrado", exception.getMessage());
+        }
+    }
+
+    @Test
+    void mustReturnAllUsers() {
+        when(userRepository.findAll()).thenReturn(List.of(userEntity));
+
+        List<UserEntity> userList = userServiceImpl.findAll();
+
+        assertNotNull(userList);
+        assertEquals(1, userList.size());
+        assertEquals(UserEntity.class, userList.get(0).getClass());
+        assertEquals(id, userList.get(0).getId());
     }
 
     @Test
