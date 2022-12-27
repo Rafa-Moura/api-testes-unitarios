@@ -29,6 +29,8 @@ class UserServiceImplTest {
     private static final String EMAIL = "rafael@gmail.com";
     private static final String PASSWORD = "49839";
     public static final int INDEX = 0;
+    public static final String USUARIO_NAO_ENCONTRADO = "Usuário não encontrado";
+    public static final String EMAIL_JA_CADASTRADO = "Email já cadastrado";
 
     @InjectMocks
     private UserServiceImpl userServiceImpl;
@@ -65,13 +67,13 @@ class UserServiceImplTest {
 
     @Test
     void mustReturnAnObjectNotFoundExceptionWhenFindById() {
-        when(userRepository.findById(anyLong())).thenThrow(new ObjectNotFoundException("Usuário não encontrado"));
+        when(userRepository.findById(anyLong())).thenThrow(new ObjectNotFoundException(USUARIO_NAO_ENCONTRADO));
 
         try {
             userServiceImpl.findById(ID);
         } catch (Exception exception) {
             assertEquals(ObjectNotFoundException.class, exception.getClass());
-            assertEquals("Usuário não encontrado", exception.getMessage());
+            assertEquals(USUARIO_NAO_ENCONTRADO, exception.getMessage());
         }
     }
 
@@ -114,12 +116,48 @@ class UserServiceImplTest {
             userServiceImpl.create(userDto);
         } catch (Exception exception) {
             assertEquals(DataIntegrityViolationException.class, exception.getClass());
-            assertEquals("Email já cadastrado", exception.getMessage());
+            assertEquals(EMAIL_JA_CADASTRADO, exception.getMessage());
         }
     }
 
     @Test
-    void update() {
+    void mustUpdateAnUserWhenUpdate() {
+
+        when(userRepository.findById(anyLong())).thenReturn(optionalUserEntity);
+        when(userRepository.save(any())).thenReturn(userEntity);
+
+        userEntity.setName("Thiago");
+
+        UserEntity response = userServiceImpl.update(userDto);
+        assertEquals(ID, response.getId());
+        assertEquals("Thiago", response.getName());
+        assertEquals(EMAIL, response.getEmail());
+        assertEquals(PASSWORD, response.getPassword());
+
+    }
+
+    @Test
+    void mustReturnObjectNotFoundExceptionWhenUpdate() {
+        when(userRepository.findById(anyLong())).thenThrow(new ObjectNotFoundException(USUARIO_NAO_ENCONTRADO));
+        try {
+            userServiceImpl.update(userDto);
+        } catch (Exception exception) {
+            assertEquals(ObjectNotFoundException.class, exception.getClass());
+            assertEquals(USUARIO_NAO_ENCONTRADO, exception.getMessage());
+        }
+    }
+
+    @Test
+    void mustReturnDataIntegrityViolationExceptionWhenUpdate() {
+        when(userRepository.findById(anyLong())).thenReturn(optionalUserEntity);
+        when(userRepository.findByEmail(anyString())).thenReturn(optionalUserEntity);
+        try {
+            optionalUserEntity.get().setId(2L);
+            userServiceImpl.update(userDto);
+        } catch (Exception exception) {
+            assertEquals(DataIntegrityViolationException.class, exception.getClass());
+            assertEquals(EMAIL_JA_CADASTRADO, exception.getMessage());
+        }
     }
 
     @Test
