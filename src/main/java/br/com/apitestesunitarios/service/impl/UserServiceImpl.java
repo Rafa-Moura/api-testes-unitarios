@@ -4,7 +4,7 @@ import br.com.apitestesunitarios.controller.dto.UserDto;
 import br.com.apitestesunitarios.infrastructure.model.UserEntity;
 import br.com.apitestesunitarios.infrastructure.repository.UserRepository;
 import br.com.apitestesunitarios.service.UserService;
-import br.com.apitestesunitarios.service.exception.DataIntegrateViolationException;
+import br.com.apitestesunitarios.service.exception.DataIntegrityViolationException;
 import br.com.apitestesunitarios.service.exception.ObjectNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     private void findByEmail(UserDto userDto) {
         Optional<UserEntity> userEntity = userRepository.findByEmail(userDto.getEmail());
         if (userEntity.isPresent() && !userEntity.get().getId().equals(userDto.getId())) {
-            throw new DataIntegrateViolationException("Email já cadastrado");
+            throw new DataIntegrityViolationException("Email já cadastrado");
         }
     }
 }
