@@ -53,7 +53,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void mustReturnAnUserById() {
+    void mustReturnAnUserWhenFindById() {
         when(userRepository.findById(anyLong())).thenReturn(optionalUserEntity);
 
         UserEntity response = userServiceImpl.findById(ID);
@@ -64,7 +64,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void mustReturnAnObjectNotFoundException() {
+    void mustReturnAnObjectNotFoundExceptionWhenFindById() {
         when(userRepository.findById(anyLong())).thenThrow(new ObjectNotFoundException("Usuário não encontrado"));
 
         try {
@@ -76,7 +76,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void mustReturnAllUsers() {
+    void mustReturnAllUsersWhenFindAll() {
         when(userRepository.findAll()).thenReturn(List.of(userEntity));
 
         List<UserEntity> userList = userServiceImpl.findAll();
@@ -92,7 +92,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void mustSaveAnUser() {
+    void mustSaveAnUserWhenCreate() {
         when(userRepository.save(any())).thenReturn(userEntity);
 
         UserEntity response = userServiceImpl.create(userDto);
