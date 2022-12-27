@@ -17,16 +17,18 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class UserServiceImplTest {
 
-    private static final Long id = 1L;
-    private static final String name = "Rafael";
-    private static final String email = "rafael@gmail.com";
-    private static final String password = "49839";
+    private static final Long ID = 1L;
+    private static final String NAME = "Rafael";
+    private static final String EMAIL = "rafael@gmail.com";
+    private static final String PASSWORD = "49839";
+    public static final int INDEX = 0;
 
     @InjectMocks
     private UserServiceImpl userServiceImpl;
@@ -54,11 +56,11 @@ class UserServiceImplTest {
     void mustReturnAnUserById() {
         when(userRepository.findById(anyLong())).thenReturn(optionalUserEntity);
 
-        UserEntity response = userServiceImpl.findById(id);
+        UserEntity response = userServiceImpl.findById(ID);
 
         assertNotNull(response);
         assertEquals(UserEntity.class, response.getClass());
-        assertEquals(id, response.getId());
+        assertEquals(ID, response.getId());
     }
 
     @Test
@@ -66,7 +68,7 @@ class UserServiceImplTest {
         when(userRepository.findById(anyLong())).thenThrow(new ObjectNotFoundException("Usuário não encontrado"));
 
         try {
-            userServiceImpl.findById(id);
+            userServiceImpl.findById(ID);
         } catch (Exception exception) {
             assertEquals(ObjectNotFoundException.class, exception.getClass());
             assertEquals("Usuário não encontrado", exception.getMessage());
@@ -81,12 +83,26 @@ class UserServiceImplTest {
 
         assertNotNull(userList);
         assertEquals(1, userList.size());
-        assertEquals(UserEntity.class, userList.get(0).getClass());
-        assertEquals(id, userList.get(0).getId());
+        assertEquals(UserEntity.class, userList.get(INDEX).getClass());
+
+        assertEquals(ID, userList.get(INDEX).getId());
+        assertEquals(NAME, userList.get(INDEX).getName());
+        assertEquals(EMAIL, userList.get(INDEX).getEmail());
+        assertEquals(PASSWORD, userList.get(INDEX).getPassword());
     }
 
     @Test
-    void create() {
+    void mustSaveAnUser() {
+        when(userRepository.save(any())).thenReturn(userEntity);
+
+        UserEntity response = userServiceImpl.create(userDto);
+
+        assertNotNull(response);
+        assertEquals(UserEntity.class, response.getClass());
+        assertEquals(ID, response.getId());
+        assertEquals(NAME, response.getName());
+        assertEquals(EMAIL, response.getEmail());
+        assertEquals(PASSWORD, response.getPassword());
     }
 
     @Test
@@ -98,8 +114,8 @@ class UserServiceImplTest {
     }
 
     private void startUsers() {
-        userEntity = new UserEntity(id, name, email, password);
-        userDto = new UserDto(id, name, email, password);
-        optionalUserEntity = Optional.of(new UserEntity(id, name, email, password));
+        userEntity = new UserEntity(ID, NAME, EMAIL, PASSWORD);
+        userDto = new UserDto(ID, NAME, EMAIL, PASSWORD);
+        optionalUserEntity = Optional.of(new UserEntity(ID, NAME, EMAIL, PASSWORD));
     }
 }
