@@ -6,6 +6,7 @@ import br.com.apitestesunitarios.infrastructure.repository.UserRepository;
 import br.com.apitestesunitarios.service.exception.DataIntegrityViolationException;
 import br.com.apitestesunitarios.service.exception.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -16,8 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -66,15 +66,15 @@ class UserServiceImplTest {
     }
 
     @Test
-    void mustReturnAnObjectNotFoundExceptionWhenFindById() {
-        when(userRepository.findById(anyLong())).thenThrow(new ObjectNotFoundException(USUARIO_NAO_ENCONTRADO));
+    @DisplayName(value = "Should be return an ObjectNotFoundException - Usuário não encontrado")
+    void mustReturnAnObjectNotFoundExceptionWhenFindByIdNewTeste() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        try {
-            userServiceImpl.findById(ID);
-        } catch (Exception exception) {
-            assertEquals(ObjectNotFoundException.class, exception.getClass());
-            assertEquals(USUARIO_NAO_ENCONTRADO, exception.getMessage());
-        }
+        Throwable exception = assertThrows(ObjectNotFoundException.class, () -> {
+            userServiceImpl.findById(anyLong());
+        });
+
+        assertEquals(USUARIO_NAO_ENCONTRADO, exception.getMessage());
     }
 
     @Test
@@ -111,13 +111,13 @@ class UserServiceImplTest {
     void mustReturnDataIntegrityViolationExceptionWhenCreateUser() {
         when(userRepository.findByEmail(anyString())).thenReturn(optionalUserEntity);
 
-        try {
-            optionalUserEntity.get().setId(2L);
+        optionalUserEntity.get().setId(2L);
+        Throwable exception = assertThrows(DataIntegrityViolationException.class, () -> {
             userServiceImpl.create(userDto);
-        } catch (Exception exception) {
-            assertEquals(DataIntegrityViolationException.class, exception.getClass());
-            assertEquals(EMAIL_JA_CADASTRADO, exception.getMessage());
-        }
+        });
+
+        assertEquals(DataIntegrityViolationException.class, exception.getClass());
+        assertEquals(EMAIL_JA_CADASTRADO, exception.getMessage());
     }
 
     @Test
@@ -138,48 +138,53 @@ class UserServiceImplTest {
 
     @Test
     void mustReturnObjectNotFoundExceptionWhenUpdate() {
-        when(userRepository.findById(anyLong())).thenThrow(new ObjectNotFoundException(USUARIO_NAO_ENCONTRADO));
-        try {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        Throwable exception = assertThrows(ObjectNotFoundException.class, () -> {
             userServiceImpl.update(userDto);
-        } catch (Exception exception) {
-            assertEquals(ObjectNotFoundException.class, exception.getClass());
-            assertEquals(USUARIO_NAO_ENCONTRADO, exception.getMessage());
-        }
+        });
+
+        assertEquals(ObjectNotFoundException.class, exception.getClass());
+        assertEquals(USUARIO_NAO_ENCONTRADO, exception.getMessage());
     }
 
     @Test
     void mustReturnDataIntegrityViolationExceptionWhenUpdate() {
         when(userRepository.findById(anyLong())).thenReturn(optionalUserEntity);
         when(userRepository.findByEmail(anyString())).thenReturn(optionalUserEntity);
-        try {
-            optionalUserEntity.get().setId(2L);
+
+        optionalUserEntity.get().setId(2L);
+
+        Throwable exception = assertThrows(DataIntegrityViolationException.class, () -> {
             userServiceImpl.update(userDto);
-        } catch (Exception exception) {
-            assertEquals(DataIntegrityViolationException.class, exception.getClass());
-            assertEquals(EMAIL_JA_CADASTRADO, exception.getMessage());
-        }
+        });
+
+        assertEquals(DataIntegrityViolationException.class, exception.getClass());
+        assertEquals(EMAIL_JA_CADASTRADO, exception.getMessage());
     }
 
     @Test
     void mustDeleteAnUserWhenDeleteById() {
         when(userRepository.findById(anyLong())).thenReturn(optionalUserEntity);
+
         doNothing().when(userRepository).deleteById(anyLong());
+
         userServiceImpl.deleteById(ID);
+
         verify(userRepository, times(1)).deleteById(anyLong());
     }
 
     @Test
     void mustReturnAnObjectNotFoundExceptionWhenDeleteById() {
-        when(userRepository.findById(anyLong())).thenThrow(new ObjectNotFoundException(USUARIO_NAO_ENCONTRADO));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        try {
-            userServiceImpl.deleteById(ID);
-        } catch (Exception exception) {
-            assertEquals(ObjectNotFoundException.class, exception.getClass());
-            assertEquals(USUARIO_NAO_ENCONTRADO, exception.getMessage());
-        }
+        Throwable exception = assertThrows(ObjectNotFoundException.class, () -> {
+            userServiceImpl.deleteById(anyLong());
+        });
+
+        assertEquals(ObjectNotFoundException.class, exception.getClass());
+        assertEquals(USUARIO_NAO_ENCONTRADO, exception.getMessage());
     }
-
 
     private void startUsers() {
         userEntity = new UserEntity(ID, NAME, EMAIL, PASSWORD);
