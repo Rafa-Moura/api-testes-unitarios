@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
 
@@ -23,6 +25,9 @@ class ControllerExceptionHandlerTest {
     @Mock
     DataIntegrityViolationException dataIntegrityViolationException;
 
+    @Mock
+    ConstraintViolationException constraintViolationException;
+
     private ControllerExceptionHandler controllerExceptionHandler;
 
     private LocalDateTime dateTime;
@@ -34,6 +39,9 @@ class ControllerExceptionHandlerTest {
         dataIntegrityViolationException = new DataIntegrityViolationException(EMAIL_JA_CADASTRADO);
 
         controllerExceptionHandler = new ControllerExceptionHandler();
+
+        constraintViolationException = new ConstraintViolationException("Failed to validate service: ", Collections.emptySet());
+        ;
 
         createAMockDate();
 
@@ -70,7 +78,20 @@ class ControllerExceptionHandlerTest {
         Assertions.assertEquals(EMAIL_JA_CADASTRADO, standardError.getError());
     }
 
+    @Test
+    void constraintViolationException() {
 
+        HttpServletRequest request = mock(HttpServletRequest.class);
+
+        StandardError standardError = controllerExceptionHandler
+                .constraintViolationException(constraintViolationException, request).getBody();
+
+        Assertions.assertNotNull(standardError);
+        Assertions.assertEquals(400, standardError.getStatus());
+        Assertions.assertTrue(dateTime.isBefore(standardError.getTimestamp()) || dateTime.isEqual(standardError.getTimestamp()));
+        Assertions.assertEquals(request.getRequestURI(), standardError.getPath());
+        Assertions.assertNotNull(standardError.getConstraintViolations());
+    }
 
 
     void createAMockDate() {
