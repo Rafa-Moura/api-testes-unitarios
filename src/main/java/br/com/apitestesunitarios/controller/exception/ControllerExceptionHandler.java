@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
@@ -37,5 +39,23 @@ public class ControllerExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(standardError);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<StandardError> constraintViolationException(ConstraintViolationException exception,
+                                                                      HttpServletRequest request) {
+
+        StandardError standardError = StandardError.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(exception.getClass().getName())
+                .path(request.getRequestURI())
+                .constraintViolations(exception.getConstraintViolations()
+                        .stream()
+                        .map(x -> x.getMessageTemplate())
+                        .collect(Collectors.toList()))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(standardError);
     }
 }

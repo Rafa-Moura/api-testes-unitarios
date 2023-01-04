@@ -70,6 +70,9 @@ class ControllerExceptionHandlerTest {
         Assertions.assertEquals(EMAIL_JA_CADASTRADO, standardError.getError());
     }
 
+
+
+
     void createAMockDate() {
         dateTime = LocalDateTime.now();
     }
